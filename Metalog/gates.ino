@@ -5,14 +5,14 @@
 #define NAND 5
 #define XOR 6
 
-typedef struct 
+struct Gate
 {
   byte id;
   int x;
   int y;
   bool a = false;
   bool b = false;
-} Gate;
+};
 
 bool bool_not (bool a)
 {
@@ -44,7 +44,7 @@ bool bool_xor (bool a, bool b)
   return (a != b);
 }
 
-bool bool_output (Gate *gate)
+bool bool_output (struct Gate* gate)
 {
   switch (gate->id)
   {
