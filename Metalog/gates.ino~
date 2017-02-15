@@ -4,8 +4,6 @@
 #define NOR 4
 #define NAND 5
 #define XOR 6
-#define INPUT 7
-#define LED 8
 
 struct Comp
 {
