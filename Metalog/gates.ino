@@ -4,7 +4,7 @@
 #define NOR 4
 #define NAND 5
 #define XOR 6
-#define INPUT 7
+#define INP 7
 #define LED 8
 
 struct Comp
@@ -12,6 +12,8 @@ struct Comp
     byte id;
     bool a = false;
     bool b = false;
+    struct Comp * pr_a = NULL;
+    struct Comp * pr_b = NULL;
 };
 
 struct GComp
@@ -54,29 +56,47 @@ bool bool_xor (bool a, bool b)
     return (a != b);
 }
 
-bool bool_output (struct Comp * gate)
+bool update_output (struct Comp * comp)
 {
-    switch (gate->id)
+    bool a, b;
+    if (comp->pr_a == NULL) 
+    {
+        a = comp->a;
+    }
+    else
+    {
+        a = update_output (comp->pr_a);
+    }
+    if (comp->pr_b == NULL)
+    {
+        b = comp->b;
+    }
+    else
+    {
+        b = update_output (comp->pr_b);
+    }
+    switch (comp->id)
     {
         case NOT:
-            return bool_not (gate->a);
+            return bool_not (a);
             break;
         case OR:
-            return bool_or (gate->a, gate->b);
+            return bool_or (a, b);
             break;
         case AND:
-            return bool_and (gate->a, gate->b);
+            return bool_and (a, b);
             break;
         case NOR:
-            return bool_nor (gate->a, gate->b);
+            return bool_nor (a, b);
             break;
         case NAND:
-            return bool_nand (gate->a, gate->b);
+            return bool_nand (a, b);
             break;
         case XOR:
-            return bool_xor (gate->a, gate->b);    
+            return bool_xor (a, b);    
             break;
         default:
             return false;
-  }
+    }
 }
+
