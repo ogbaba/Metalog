@@ -1,3 +1,4 @@
+#include <EEPROM.h>
 #include <SPI.h>
 #include <Gamebuino.h>
 

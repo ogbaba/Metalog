@@ -21,11 +21,40 @@ struct GComp
     int x;
     int y;
     char name [8];
-    char * bitmap;
-    char * bitmapAct;
-    struct Comp * comp;
+    struct Comp comp;
 };
 
+struct Circuit
+{
+    char name [8];
+    struct GComp comps[64];
+    struct Comp * outputs [16] = {NULL};
+};
+
+struct Save
+{
+    struct Circuit circuits[8];
+};
+
+void save_circuit(struct Save save, struct Circuit circuit, byte savenb)
+{
+    save.circuits[savenb] = circuit;
+}
+
+void save_game(struct Save * save)
+{
+    for (int i = 0; i<sizeof(&save); ++i)
+    {
+        EEPROM.write(i,((uint8_t*)&save)[i]);
+    }
+}
+void restore_game(struct Save * save)
+{
+    for (int i=0; i<sizeof(&save); ++i)
+    {
+        ((uint8_t*)&save)[i] = EEPROM.read(i);
+    }
+}
 bool bool_not (bool a)
 {
     return !a;
