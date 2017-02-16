@@ -4,6 +4,8 @@
 
 Gamebuino gb;
 
+struct Comp lecomp;
+
 void setup() {
   gb.begin();
   gb.titleScreen(F("Metalog"));
