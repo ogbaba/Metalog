@@ -1,8 +1,49 @@
 void draw_circuit() {
+    const byte * bitmap;
     for (unsigned i=0; i < circuit.nbcomps; ++i) {
-        gb.display.drawRect(circuit.comps[i].x - camera.x,
+        /*gb.display.drawRect(circuit.comps[i].x - camera.x,
                             circuit.comps[i].y - camera.y,
                             3, 3);
+                            */
+        switch (circuit.comps[i].comp.id)
+            {
+                case OR:
+                    bitmap = BMOR;
+                    break;
+                case AND:
+                    bitmap = BMAND;
+                    break;
+                case NOR:
+                    bitmap = BMNOR;
+                    break;
+                case NAND:
+                    bitmap = BMNAND;
+                    break;
+                case XOR:
+                    bitmap = BMXOR;
+                    break;
+                case NOT:
+                    bitmap = BMNOT;
+                    break;
+                case INP:
+                    if (circuit.comps[i].comp.a)
+                        bitmap = BMSWITCHON;
+                    else
+                        bitmap = BMSWITCHOFF;
+                    break;
+                case LED:
+                    if (circuit.comps[i].comp.a)
+                        bitmap = BMLEDON;
+                    else 
+                        bitmap = BMLEDOFF;
+                    break;
+                default:
+                    continue;
+            }    
+            gb.display.drawBitmap(
+                    circuit.comps[i].x - camera.x,
+                    circuit.comps[i].y - camera.y,
+                    bitmap);
     }
 }
 
