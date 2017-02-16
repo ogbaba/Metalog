@@ -47,6 +47,13 @@ void draw_circuit() {
     }
 }
 
+void draw_ui() {
+    gb.display.drawBitmap(
+            LCDWIDTH/2 - 2,
+            LCDHEIGHT/2 - 2,
+            BMCURS);
+}
+
 void get_inputs() {
     // Camera movements
     if (gb.buttons.repeat(BTN_UP, CAMERA_SPEED))
@@ -59,8 +66,9 @@ void get_inputs() {
         camera.x += 1;
 
     // Camera position clamping
-    camera.x = max(0, camera.x);
-    camera.y = max(0, camera.y);
+    camera.x = max(-(LCDWIDTH/2), camera.x);
+    camera.y = max(-(LCDHEIGHT/2), camera.y);
+    
 }
 
 bool placing_mode;
