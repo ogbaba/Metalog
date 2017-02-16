@@ -12,7 +12,7 @@
 #define INP 7
 #define LED 8
 
-#define CAMERA_SPEED 5
+#define CAMERA_SPEED 1
 
 struct Comp
 {
