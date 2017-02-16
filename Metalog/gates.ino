@@ -9,9 +9,9 @@
 
 struct Comp
 {
-    byte id:6;
-    int a:1 = false;
-    int b:1 = false;
+    byte id;
+    bool a = false;
+    bool b = false;
 };
 
 struct GComp
@@ -24,37 +24,37 @@ struct GComp
     struct Comp * comp;
 };
 
-int bool_not (int a)
+bool bool_not (bool a)
 {
     return !a;
 }
 
-int bool_or (int a, int b)
+bool bool_or (bool a, bool b)
 {
     return (a || b);
 }
 
-int bool_and (int a, int b)
+bool bool_and (bool a, bool b)
 {
     return (a && b);
 }
 
-int bool_nor (int a, int b)
+bool bool_nor (bool a, bool b)
 {
     return !(a || b);
 }
 
-int bool_nand (int a, int b)
+bool bool_nand (bool a, bool b)
 {
     return !(a && b);
 }
 
-int bool_xor (int a, int b)
+bool bool_xor (bool a, bool b)
 {
     return (a != b);
 }
 
-int bool_output (struct Gate* gate)
+bool bool_output (struct Comp * gate)
 {
     switch (gate->id)
     {
