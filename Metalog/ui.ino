@@ -1,11 +1,15 @@
-void draw_circuit() {
+void draw_circuit () {
     const byte * bitmap;
     for (unsigned i=0; i < circuit.nbcomps; ++i) {
         /*gb.display.drawRect(circuit.comps[i].x - camera.x,
                             circuit.comps[i].y - camera.y,
                             3, 3);
                             */
-        switch (circuit.comps[i].comp.id)
+        if (gb.collideRectRect(
+                    circuit.comps[i].x, circuit.comps[i].y, 16, 16,
+                    camera.x, camera.y, LCDWIDTH - 16, LCDHEIGHT))
+        {
+            switch (circuit.comps[i].id)
             {
                 case OR:
                     bitmap = BMOR;
@@ -26,13 +30,13 @@ void draw_circuit() {
                     bitmap = BMNOT;
                     break;
                 case INP:
-                    if (circuit.comps[i].comp.a)
+                    if (circuit.comps[i].a)
                         bitmap = BMSWITCHON;
                     else
                         bitmap = BMSWITCHOFF;
                     break;
                 case LED:
-                    if (circuit.comps[i].comp.a)
+                    if (circuit.comps[i].a)
                         bitmap = BMLEDON;
                     else 
                         bitmap = BMLEDOFF;
@@ -44,6 +48,30 @@ void draw_circuit() {
                     circuit.comps[i].x - camera.x,
                     circuit.comps[i].y - camera.y,
                     bitmap);
+                // Drawing wires
+            int mono_inp = 0;
+            if (circuit.comps[i].id == LED)
+            {
+                mono_inp = 3;
+            }
+            if (circuit.comps[i].pr_a)
+            {
+                gb.display.drawLine(
+                        circuit.comps[i].x - camera.x,
+                        circuit.comps[i].y + 5 + mono_inp - camera.y,
+                        circuit.comps[i].pr_a->x + 16 - camera.x,
+                        circuit.comps[i].pr_a->y + 8 - camera.y);
+
+            }
+            if (circuit.comps[i].pr_b)
+            {
+                gb.display.drawLine(
+                        circuit.comps[i].x - camera.x,
+                        circuit.comps[i].y + 10 - camera.y,
+                        circuit.comps[i].pr_b->x + 16 - camera.x,
+                        circuit.comps[i].pr_b->y + 8 - camera.y);
+            }
+        }
     }
 }
 
@@ -52,6 +80,10 @@ void draw_ui() {
             LCDWIDTH/2 - 2,
             LCDHEIGHT/2 - 2,
             BMCURS);
+    gb.display.setColor(WHITE);
+    gb.display.fillRect(LCDWIDTH - 16, 0, 16, LCDHEIGHT); 
+    gb.display.setColor(BLACK);
+    gb.display.drawFastVLine(LCDWIDTH - 17, 0, LCDHEIGHT);
 }
 
 void get_inputs() {
@@ -71,10 +103,20 @@ void get_inputs() {
     
 }
 
-bool placing_mode;
-struct Comp * pin_wire;
+void place_comp(byte id){
+    int i = 0;
+    for (; i < circuit.nbcomps; ++i)
+        if (circuit.comps[i].id == NULLCOMP) break; 
+    circuit.comps[i].id = id;
+    circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8;
+    circuit.comps[i].y = camera.y + LCDHEIGHT/2 - 8;
+}
+
 void place_wire(){
-    if (!placing_mode)
+    static bool placing_wire;
+    static struct Comp * pin_wire;
+
+    if (!placing_wire)
     {
         for (int i = 0; i < 64; ++i) 
         {
@@ -88,16 +130,16 @@ void place_wire(){
                             circuit.comps[i].x, circuit.comps[i].y,
                             16,8))
                 {//a
-                    pin_wire = circuit.comps[i].comp.pr_a;
+                    pin_wire = circuit.comps[i].pr_a;
                 }
                 if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                             camera.y + LCDHEIGHT/2,
                             circuit.comps[i].x, circuit.comps[i].y + 8,
                             16,8))
                 {//b
-                    pin_wire = circuit.comps[i].comp.pr_b;
+                    pin_wire = circuit.comps[i].pr_b;
                 }
-                placing_mode = true;   
+                placing_wire = true;   
                 break;
             }
         }   
@@ -111,8 +153,8 @@ void place_wire(){
                         circuit.comps[i].x, circuit.comps[i].y,
                         16,16))
             {
-                * pin_wire = circuit.comps[i].comp;
-                placing_mode = false;
+                * pin_wire = circuit.comps[i];
+                placing_wire = false;
             }
 
         }

@@ -11,6 +11,8 @@
 #define XOR 6
 #define INP 7
 #define LED 8
+#define WIRE 9
+#define HAND 10
 
 #define CAMERA_SPEED 1
 
@@ -28,26 +30,21 @@ const byte BMCURS[] PROGMEM = {8,4,0x60,0x90,0x90,0x60,};
 
 struct Comp
 {
-    byte id = 0;
+    byte id = NULLCOMP;
     bool a = false;
     bool b = false;
     struct Comp * pr_a = NULL;
     struct Comp * pr_b = NULL;
-};
-
-struct GComp
-{
     int x;
     int y;
     char name [8];
-    struct Comp comp;
 };
 
 struct Circuit
 {
     char name [8];
     byte nbcomps = 0;
-    struct GComp comps[32];
+    struct Comp comps[32];
     struct Comp * outputs [16] = {NULL};
 };
 
@@ -64,7 +61,6 @@ struct Camera
 
 struct Circuit circuit;
 struct Comp comp;
-struct GComp gcomp;
 
 Camera camera;
 
@@ -74,15 +70,14 @@ void setup() {
     gb.begin();
     gb.titleScreen(F("Metalog"));
     comp.id = NOT;
-    circuit.comps[0] = gcomp;
+    circuit.comps[0] = comp;
     circuit.comps[0].x = 3;
     circuit.comps[0].y = 5;
-    circuit.comps[0].comp = comp;
     comp.id = LED;
-    circuit.comps[1] = gcomp;
-    circuit.comps[1].x = 10;
-    circuit.comps[1].y = 16;
-    circuit.comps[1].comp = comp;  
+    circuit.comps[1] = comp;
+    circuit.comps[1].x = 20;
+    circuit.comps[1].y = 5;
+    circuit.comps[1].pr_a = &circuit.comps[0];
     circuit.nbcomps = 2;
 }
 
