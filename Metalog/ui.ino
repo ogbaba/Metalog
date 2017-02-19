@@ -50,7 +50,7 @@ void draw_circuit () {
                     bitmap);
                 // Drawing wires
             int mono_inp = 0;
-            if (circuit.comps[i].id == LED)
+            if (is_mono_inp(circuit.comps[i].id))
             {
                 mono_inp = 3;
             }
@@ -73,6 +73,11 @@ void draw_circuit () {
             }
         }
     }
+}
+
+bool is_mono_inp (byte id)
+{
+    return ((id == NOT ) || (id == LED));
 }
 
 void draw_ui() {
@@ -128,7 +133,7 @@ void place_wire(){
                 if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                             camera.y + LCDHEIGHT/2,
                             circuit.comps[i].x, circuit.comps[i].y,
-                            16,8))
+                            16,8) || is_mono_inp(circuit.comps[i].id))
                 {//a
                     pin_wire = circuit.comps[i].pr_a;
                 }
