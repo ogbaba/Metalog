@@ -77,12 +77,21 @@ void setup() {
     circuit.comps[0].x = 3;
     circuit.comps[0].y = 5;
     circuit.comps[0].a = true;
-    circuit.comps[1].id = LED;
+    circuit.comps[3].id = INP;
+    circuit.comps[3].a = true;
+    circuit.comps[3].x = 3;
+    circuit.comps[3].y = 23;
+    circuit.comps[1].id = AND;
     circuit.comps[1].x = 20;
-    circuit.comps[1].y = 5;
+    circuit.comps[1].y = 10;
     circuit.comps[1].pr_a = &circuit.comps[0];
-    circuit.outputs[0] = &circuit.comps[1];
-    circuit.nbcomps = 2;
+    circuit.comps[1].pr_b = &circuit.comps[3];
+    circuit.comps[4].id = LED;
+    circuit.comps[4].x = 40;
+    circuit.comps[4].y = 10;
+    circuit.comps[4].pr_a = &circuit.comps[1];
+    circuit.outputs[0] = &circuit.comps[4];
+    circuit.nbcomps = 5;
     update_outputs(circuit.outputs);
 }
 
