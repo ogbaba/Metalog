@@ -82,7 +82,7 @@ bool is_mono_inp (byte id)
 
 void draw_ui() {
     gb.display.drawBitmap(
-            LCDWIDTH/2 - 2,
+            LCDWIDTH/2 - 2 - 16,
             LCDHEIGHT/2 - 2,
             BMCURS);
     gb.display.setColor(WHITE);
@@ -101,7 +101,23 @@ void get_inputs() {
         camera.x -= 1;
     if (gb.buttons.repeat(BTN_RIGHT, CAMERA_SPEED))
         camera.x += 1;
+    if (gb.buttons.pressed(BTN_A))
+    {
+        for (int i = 0; i < MAXCOMP; ++i)
+        {
+            if ((gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                        camera.y + LCDHEIGHT/2,
+                        circuit.comps[i].x, circuit.comps[i].y,
+                        16,16)) && (circuit.comps[i].id == INP))
+            {
+                circuit.comps[i].a = !circuit.comps[i].a;
+                update_outputs(circuit.outputs);
+            }
 
+        }
+
+
+    }
     // Camera position clamping
     camera.x = max(-(LCDWIDTH/2), camera.x);
     camera.y = max(-(LCDHEIGHT/2), camera.y);
@@ -123,21 +139,21 @@ void place_wire(){
 
     if (!placing_wire)
     {
-        for (int i = 0; i < 64; ++i) 
+        for (int i = 0; i < MAXCOMP; ++i) 
         {
-            if (gb.collidePointRect(camera.x + LCDWIDTH/2,
+            if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
                         camera.y + LCDHEIGHT/2,
                         circuit.comps[i].x, circuit.comps[i].y,
                         16,16))
             {
-                if (gb.collidePointRect(camera.x + LCDWIDTH/2,
+                if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
                             camera.y + LCDHEIGHT/2,
                             circuit.comps[i].x, circuit.comps[i].y,
                             16,8) || is_mono_inp(circuit.comps[i].id))
                 {//a
                     pin_wire = circuit.comps[i].pr_a;
                 }
-                if (gb.collidePointRect(camera.x + LCDWIDTH/2,
+                if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
                             camera.y + LCDHEIGHT/2,
                             circuit.comps[i].x, circuit.comps[i].y + 8,
                             16,8))
@@ -151,7 +167,7 @@ void place_wire(){
     }
     else
     {
-        for (int i = 0; i < 64; ++i) 
+        for (int i = 0; i < MAXCOMP; ++i) 
         {
             if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                         camera.y + LCDHEIGHT/2,

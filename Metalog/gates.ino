@@ -30,6 +30,7 @@ bool bool_xor (bool a, bool b)
 
 bool update_output (struct Comp * comp)
 {
+    if (!comp) return false;
     bool a, b;
     if (!comp->pr_a)
         a = comp->a;
@@ -62,6 +63,15 @@ bool update_output (struct Comp * comp)
             return bool_xor (a, b);
             break;
         default:
-            return false;
+            Serial.println(a);
+            return a;
+    }
+}
+
+void update_outputs (struct Comp * comps [])
+{
+    for (int i = 0; i < MAXOUTP; ++i)
+    {
+        comps[i]->a = update_output(comps[i]);
     }
 }

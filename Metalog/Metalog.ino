@@ -14,6 +14,9 @@
 #define WIRE 9
 #define HAND 10
 
+#define MAXCOMP 32
+#define MAXOUTP 16
+
 #define CAMERA_SPEED 1
 
 const byte BMAND[] PROGMEM = {16,16,0x0,0x0,0x0,0x0,0x0,0x0,0x1F,0xF8,0x10,0x8,0xF3,0x8,0x14,0x88,0x13,0x8,0x14,0xCF,0x14,0x88,0xF3,0x48,0x10,0x8,0x1F,0xF8,0x0,0x0,0x0,0x0,0x0,0x0,};
@@ -44,8 +47,8 @@ struct Circuit
 {
     char name [8];
     byte nbcomps = 0;
-    struct Comp comps[32];
-    struct Comp * outputs [16] = {NULL};
+    struct Comp comps[MAXCOMP];
+    struct Comp * outputs [MAXOUTP] = {NULL};
 };
 
 struct Save
@@ -67,18 +70,20 @@ Camera camera;
 Gamebuino gb;
 
 void setup() {
+    Serial.begin(9600);
     gb.begin();
     gb.titleScreen(F("Metalog"));
-    comp.id = NOT;
-    circuit.comps[0] = comp;
+    circuit.comps[0].id = INP;
     circuit.comps[0].x = 3;
     circuit.comps[0].y = 5;
-    comp.id = LED;
-    circuit.comps[1] = comp;
+    circuit.comps[0].a = true;
+    circuit.comps[1].id = LED;
     circuit.comps[1].x = 20;
     circuit.comps[1].y = 5;
     circuit.comps[1].pr_a = &circuit.comps[0];
+    circuit.outputs[0] = &circuit.comps[1];
     circuit.nbcomps = 2;
+    update_outputs(circuit.outputs);
 }
 
 void loop() {
