@@ -268,13 +268,15 @@ void place_wire(){
                                   circuit.comps[i].x, circuit.comps[i].y,
                                   16,16))
             {
-              if ((camera.y < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
+              if ((camera.y+LCDHEIGHT/2 < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
                 {//a
+                  Serial.print("a\n");
                   circuit.comps[i].pr_a = pin_wire;
                   Serial.print((int)circuit.comps[i].pr_a);
                 }
-              if (camera.y >= circuit.comps[i].y + 8)
+              else if (camera.y+LCDHEIGHT/2 >= circuit.comps[i].y + 8)
                 {//b
+                  Serial.print("b\n");
                   circuit.comps[i].pr_b = pin_wire;
                 }
               placing_wire = false;
