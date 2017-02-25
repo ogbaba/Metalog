@@ -81,7 +81,8 @@ Gamebuino gb;
 void setup() {
     Serial.begin(9600);
     gb.begin();
-    gb.titleScreen(F("Metalog"));
+    gb.titleScreen(F("Metalog"),BMOR);
+    /*
     circuit.comps[0].id = INP;
     circuit.comps[0].x = 3;
     circuit.comps[0].y = 5;
@@ -102,6 +103,7 @@ void setup() {
     circuit.outputs[0] = &circuit.comps[4];
     circuit.nbcomps = 5;
     update_outputs(circuit.outputs);
+     */
 }
 
 void loop() {

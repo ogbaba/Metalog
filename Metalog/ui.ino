@@ -1,6 +1,6 @@
 bool menu_on;
 int menu_curs_x, menu_curs_y;
-byte sel_tool;
+byte sel_tool = HAND;
 
 void draw_circuit () {
     if (menu_on) return;
@@ -185,6 +185,10 @@ void get_inputs() {
     {
         menu_on = !menu_on;
     }
+    if (gb.buttons.pressed(BTN_C))
+    {
+        gb.titleScreen(F("Metalog"),BMOR);
+    }
     // Camera position clamping
     camera.x = max(-(LCDWIDTH/2), camera.x);
     camera.y = max(-(LCDHEIGHT/2), camera.y);
@@ -216,14 +220,27 @@ void del_comp()
                     circuit.comps[i].x, circuit.comps[i].y,
                     16,16))
         {
-            circuit.comps[i].id = NULLCOMP;
-            circuit.comps[i].pr_a = NULL;
-            circuit.comps[i].pr_b = NULL;
-            for (int j = 0; j < MAXOUTP; ++j)
+            if (((camera.y+LCDHEIGHT/2 < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
+                    && (circuit.comps[i].pr_a))
+
+                {//a
+                    circuit.comps[i].pr_a = NULL;
+                }
+            else if ((camera.y+LCDHEIGHT/2 >= circuit.comps[i].y + 8)&&(circuit.comps[i].pr_b))
+                {//b
+                    circuit.comps[i].pr_b = NULL;
+                }
+            else 
             {
-                if (circuit.outputs[i] == &circuit.comps[i])
+                circuit.comps[i].id = NULLCOMP;
+                circuit.comps[i].pr_a = NULL;
+                circuit.comps[i].pr_b = NULL;
+                for (int j = 0; j < MAXOUTP; ++j)
                 {
-                    circuit.outputs[i] = NULL;
+                    if (circuit.outputs[i] == &circuit.comps[i])
+                    {
+                        circuit.outputs[i] = NULL;
+                    }
                 }
             }
         }
