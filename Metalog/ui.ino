@@ -244,17 +244,11 @@ void place_wire(){
                         circuit.comps[i].x, circuit.comps[i].y,
                         16,16))
             {
-                if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
-                            camera.y + LCDHEIGHT/2,
-                            circuit.comps[i].x, circuit.comps[i].y,
-                            16,8) || is_mono_inp(circuit.comps[i].id))
+                if ((camera.y < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
                 {//a
                     pin_wire = circuit.comps[i].pr_a;
                 }
-                if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
-                            camera.y + LCDHEIGHT/2,
-                            circuit.comps[i].x, circuit.comps[i].y + 8,
-                            16,8))
+                if (camera.y >= circuit.comps[i].y + 8)
                 {//b
                     pin_wire = circuit.comps[i].pr_b;
                 }
