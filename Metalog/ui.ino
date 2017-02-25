@@ -1,4 +1,6 @@
 bool menu_on;
+int menu_curs_x, menu_curs_y;
+byte sel_tool;
 
 void draw_circuit () {
     if (menu_on) return;
@@ -78,6 +80,15 @@ void draw_comp (int x, int y, byte id, byte state)
             else 
                 bitmap = BMLEDOFF;
             break;
+        case HAND:
+            bitmap = BMHAND;
+            break;
+        case PLIERS:
+            bitmap = BMPLIERS;
+            break;
+        case WIRE:
+            bitmap = BMWIRE;
+            break;
         default:
             return;
     }    
@@ -99,6 +110,7 @@ void draw_ui() {
         gb.display.fillRect(LCDWIDTH - 16, 0, 16, LCDHEIGHT); 
         gb.display.setColor(BLACK);
         gb.display.drawFastVLine(LCDWIDTH - 17, 0, LCDHEIGHT);
+        draw_comp (LCDWIDTH - 16, 0, sel_tool, 0);
     }
     else
     {
@@ -109,33 +121,65 @@ void draw_ui() {
                 draw_comp (j*16,i*16,menu_arr[i][j],0);
             }
         }
+        gb.display.drawRect(menu_curs_x * 16, menu_curs_y * 16, 16,16);
     }
 }
 
 void get_inputs() {
     // Camera movements
-    if (gb.buttons.repeat(BTN_UP, CAMERA_SPEED))
-        camera.y -= 1;
-    if (gb.buttons.repeat(BTN_DOWN, CAMERA_SPEED))
-        camera.y += 1;
-    if (gb.buttons.repeat(BTN_LEFT, CAMERA_SPEED))
-        camera.x -= 1;
-    if (gb.buttons.repeat(BTN_RIGHT, CAMERA_SPEED))
-        camera.x += 1;
-    if (gb.buttons.pressed(BTN_A))
+    if (!menu_on)
     {
-        for (int i = 0; i < MAXCOMP; ++i)
+        if (gb.buttons.repeat(BTN_UP, CAMERA_SPEED))
+            camera.y -= 1;
+        if (gb.buttons.repeat(BTN_DOWN, CAMERA_SPEED))
+            camera.y += 1;
+        if (gb.buttons.repeat(BTN_LEFT, CAMERA_SPEED))
+            camera.x -= 1;
+        if (gb.buttons.repeat(BTN_RIGHT, CAMERA_SPEED))
+            camera.x += 1;
+        if (gb.buttons.pressed(BTN_A))
         {
-            if ((gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
-                        camera.y + LCDHEIGHT/2,
-                        circuit.comps[i].x, circuit.comps[i].y,
-                        16,16)) && (circuit.comps[i].id == INP))
+            if (sel_tool == HAND)
             {
-                circuit.comps[i].a = !circuit.comps[i].a;
-                update_outputs(circuit.outputs);
-            }
+                for (int i = 0; i < MAXCOMP; ++i)
+                {
+                    if ((gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                                camera.y + LCDHEIGHT/2,
+                                circuit.comps[i].x, circuit.comps[i].y,
+                                16,16)) && (circuit.comps[i].id == INP))
+                    {
+                        circuit.comps[i].a = !circuit.comps[i].a;
+                        update_outputs(circuit.outputs);
+                    }
 
+                }
+            }
+            else if (sel_tool == WIRE)
+            {
+                place_wire();
+            }
+            else if (sel_tool == PLIERS)
+            {
+                del_comp();
+            }
+            else 
+            {
+                place_comp(sel_tool);
+            }
         }
+    }
+    else
+    {
+        if ((gb.buttons.pressed(BTN_UP))&&(menu_curs_y > 0))
+            menu_curs_y -= 1;
+        if ((gb.buttons.pressed(BTN_DOWN))&&(menu_curs_y < MENUH - 1))
+            menu_curs_y += 1;
+        if ((gb.buttons.pressed(BTN_LEFT))&&(menu_curs_x > 0))
+            menu_curs_x -= 1;
+        if ((gb.buttons.pressed(BTN_RIGHT))&&(menu_curs_x < MENUW - 1))
+            menu_curs_x += 1;
+        if (gb.buttons.pressed(BTN_A))
+            sel_tool = menu_arr[menu_curs_y][menu_curs_x];            
     }
     if (gb.buttons.pressed(BTN_B))
     {
@@ -149,11 +193,42 @@ void get_inputs() {
 
 void place_comp(byte id){
     int i = 0;
+    // looking for empty pos in the array
     for (; i < circuit.nbcomps; ++i)
         if (circuit.comps[i].id == NULLCOMP) break; 
     circuit.comps[i].id = id;
-    circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8;
+    circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8 -16;
     circuit.comps[i].y = camera.y + LCDHEIGHT/2 - 8;
+    for (int j = 0; j < MAXOUTP; ++j)
+    {
+        circuit.outputs[j] = &circuit.comps[i];
+    }
+    ++circuit.nbcomps;
+
+}
+
+void del_comp()
+{
+    for (int i = 0; i < MAXCOMP; ++i) 
+    {
+        if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                    camera.y + LCDHEIGHT/2,
+                    circuit.comps[i].x, circuit.comps[i].y,
+                    16,16))
+        {
+            circuit.comps[i].id = NULLCOMP;
+            circuit.comps[i].pr_a = NULL;
+            circuit.comps[i].pr_b = NULL;
+            for (int j = 0; j < MAXOUTP; ++j)
+            {
+                if (circuit.outputs[i] == &circuit.comps[i])
+                {
+                    circuit.outputs[i] = NULL;
+                }
+            }
+        }
+    }
+
 }
 
 void place_wire(){
