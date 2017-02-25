@@ -51,7 +51,7 @@ struct Circuit
 {
     char name [8];
     byte nbcomps = 0;
-    struct Comp comps[MAXCOMP] = {NULLCOMP};
+    struct Comp comps[MAXCOMP];// = {NULLCOMP};
     struct Comp * outputs [MAXOUTP] = {NULL};
 };
 

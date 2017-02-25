@@ -77,7 +77,7 @@ void draw_comp (int x, int y, byte id, byte state)
         case LED:
             if (state)
                 bitmap = BMLEDON;
-            else 
+            else
                 bitmap = BMLEDOFF;
             break;
         case HAND:
@@ -91,7 +91,7 @@ void draw_comp (int x, int y, byte id, byte state)
             break;
         default:
             return;
-    }    
+    }
     gb.display.drawBitmap(x,y,bitmap);
 }
 
@@ -107,7 +107,7 @@ void draw_ui() {
                 LCDHEIGHT/2 - 2,
                 BMCURS);
         gb.display.setColor(WHITE);
-        gb.display.fillRect(LCDWIDTH - 16, 0, 16, LCDHEIGHT); 
+        gb.display.fillRect(LCDWIDTH - 16, 0, 16, LCDHEIGHT);
         gb.display.setColor(BLACK);
         gb.display.drawFastVLine(LCDWIDTH - 17, 0, LCDHEIGHT);
         draw_comp (LCDWIDTH - 16, 0, sel_tool, 0);
@@ -162,7 +162,7 @@ void get_inputs() {
             {
                 del_comp();
             }
-            else 
+            else
             {
                 place_comp(sel_tool);
             }
@@ -179,7 +179,7 @@ void get_inputs() {
         if ((gb.buttons.pressed(BTN_RIGHT))&&(menu_curs_x < MENUW - 1))
             menu_curs_x += 1;
         if (gb.buttons.pressed(BTN_A))
-            sel_tool = menu_arr[menu_curs_y][menu_curs_x];            
+            sel_tool = menu_arr[menu_curs_y][menu_curs_x];
     }
     if (gb.buttons.pressed(BTN_B))
     {
@@ -188,14 +188,14 @@ void get_inputs() {
     // Camera position clamping
     camera.x = max(-(LCDWIDTH/2), camera.x);
     camera.y = max(-(LCDHEIGHT/2), camera.y);
-    
+
 }
 
 void place_comp(byte id){
     int i = 0;
     // looking for empty pos in the array
     for (; i < circuit.nbcomps; ++i)
-        if (circuit.comps[i].id == NULLCOMP) break; 
+        if (circuit.comps[i].id == NULLCOMP) break;
     circuit.comps[i].id = id;
     circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8 -16;
     circuit.comps[i].y = camera.y + LCDHEIGHT/2 - 8;
@@ -209,7 +209,7 @@ void place_comp(byte id){
 
 void del_comp()
 {
-    for (int i = 0; i < MAXCOMP; ++i) 
+    for (int i = 0; i < MAXCOMP; ++i)
     {
         if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
                     camera.y + LCDHEIGHT/2,
@@ -232,42 +232,54 @@ void del_comp()
 }
 
 void place_wire(){
-    static bool placing_wire;
-    static struct Comp * pin_wire;
-
-    if (!placing_wire)
+  static bool placing_wire;
+  static struct Comp * pin_wire;
+  Serial.print("bl: ");
+  Serial.print(placing_wire);
+  Serial.print("\n");
+  Serial.flush();
+  if (!placing_wire)
     {
-        for (int i = 0; i < MAXCOMP; ++i) 
+      Serial.print("Placing wire\n");
+      for (int i = 0; i < MAXCOMP; ++i)
         {
-            if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
-                        camera.y + LCDHEIGHT/2,
-                        circuit.comps[i].x, circuit.comps[i].y,
-                        16,16))
+          if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                                  camera.y + LCDHEIGHT/2,
+                                  circuit.comps[i].x, circuit.comps[i].y,
+                                  16,16))
             {
-                if ((camera.y < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
-                {//a
-                    pin_wire = circuit.comps[i].pr_a;
-                }
-                if (camera.y >= circuit.comps[i].y + 8)
-                {//b
-                    pin_wire = circuit.comps[i].pr_b;
-                }
-                placing_wire = true;   
-                break;
+              pin_wire = &circuit.comps[i];
+              Serial.print("Output address: ");
+              Serial.print((int)pin_wire);
+              Serial.print("\n");
+              Serial.flush();
+              placing_wire = true;
+              return;
             }
-        }   
+        }
     }
-    else
+  else
     {
-        for (int i = 0; i < MAXCOMP; ++i) 
+      Serial.print("Connecting wire\n");
+      for (int i = 0; i < MAXCOMP; ++i)
         {
-            if (gb.collidePointRect(camera.x + LCDWIDTH/2,
-                        camera.y + LCDHEIGHT/2,
-                        circuit.comps[i].x, circuit.comps[i].y,
-                        16,16))
+          if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                                  camera.y + LCDHEIGHT/2,
+                                  circuit.comps[i].x, circuit.comps[i].y,
+                                  16,16))
             {
-                * pin_wire = circuit.comps[i];
-                placing_wire = false;
+              if ((camera.y < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
+                {//a
+                  circuit.comps[i].pr_a = pin_wire;
+                  Serial.print((int)circuit.comps[i].pr_a);
+                }
+              if (camera.y >= circuit.comps[i].y + 8)
+                {//b
+                  circuit.comps[i].pr_b = pin_wire;
+                }
+              placing_wire = false;
+              pin_wire = NULL;
+              return;
             }
 
         }
