@@ -82,6 +82,7 @@ void setup() {
     Serial.begin(9600);
     gb.begin();
     gb.titleScreen(F("Metalog"),BMOR);
+    restore_game(&circuit);
     /*
     circuit.comps[0].id = INP;
     circuit.comps[0].x = 3;

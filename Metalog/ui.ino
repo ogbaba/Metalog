@@ -99,7 +99,7 @@ bool is_mono_inp (byte id)
 {
     return ((id == NOT ) || (id == LED));
 }
-void draw_ui(bool placing_wire) {
+void draw_ui(void) {
     if (!menu_on)
     {
         gb.display.drawBitmap(
@@ -157,14 +157,17 @@ void get_inputs() {
             else if (sel_tool == WIRE)
             {
                 place_wire();
+                update_outputs(circuit.outputs);
             }
             else if (sel_tool == PLIERS)
             {
                 del_comp();
+                update_outputs(circuit.outputs);
             }
             else
             {
                 place_comp(sel_tool);
+                update_outputs(circuit.outputs);
             }
         }
     }
@@ -187,6 +190,7 @@ void get_inputs() {
     }
     if (gb.buttons.pressed(BTN_C))
     {
+        save_game(&circuit);
         gb.titleScreen(F("Metalog"),BMOR);
     }
     // Camera position clamping
@@ -208,7 +212,6 @@ void place_comp(byte id){
         circuit.outputs[j] = &circuit.comps[i];
     }
     ++circuit.nbcomps;
-
 }
 
 void del_comp()
@@ -248,16 +251,11 @@ void del_comp()
 
 }
 
-bool place_wire(){
+void place_wire(){
     static bool placing_wire;
     static struct Comp * pin_wire;
-    Serial.print("bl: ");
-    Serial.print(placing_wire);
-    Serial.print("\n");
-    Serial.flush();
     if (!placing_wire)
     {
-        Serial.print("Placing wire\n");
         for (int i = 0; i < MAXCOMP; ++i)
         {
             if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
@@ -266,18 +264,13 @@ bool place_wire(){
                                     16,16))
             {
                 pin_wire = &circuit.comps[i];
-                Serial.print("Output address: ");
-                Serial.print((int)pin_wire);
-                Serial.print("\n");
-                Serial.flush();
                 placing_wire = true;
-                return placing_wire;
+                //return placing_wire;
             }
         }
     }
     else
     {
-        Serial.print("Connecting wire\n");
         for (int i = 0; i < MAXCOMP; ++i)
         {
             if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
@@ -285,20 +278,18 @@ bool place_wire(){
                                     circuit.comps[i].x, circuit.comps[i].y,
                                     16,16))
             {
+                if (circuit.comps + i == pin_wire) return;
                 if ((camera.y+LCDHEIGHT/2 < circuit.comps[i].y + 8) || (is_mono_inp(circuit.comps[i].id)))
                 {//a
-                    Serial.print("a\n");
                     circuit.comps[i].pr_a = pin_wire;
-                    Serial.print((int)circuit.comps[i].pr_a);
                 }
                 else if (camera.y+LCDHEIGHT/2 >= circuit.comps[i].y + 8)
                 {//b
-                    Serial.print("b\n");
                     circuit.comps[i].pr_b = pin_wire;
                 }
                 placing_wire = false;
                 pin_wire = NULL;
-                return placing_wire;
+                //return placing_wire;
             }
 
         }
