@@ -11,7 +11,7 @@ void draw_circuit () {
         */
         if (gb.collideRectRect(
                 circuit.comps[i].x, circuit.comps[i].y, 16, 16,
-                camera.x, camera.y, LCDWIDTH - 16, LCDHEIGHT))
+                camera.x, camera.y, LCDWIDTH, LCDHEIGHT))
         {
             draw_comp(
                 circuit.comps[i].x - camera.x,
@@ -103,13 +103,14 @@ void draw_ui(void) {
     if (!menu_on)
     {
         gb.display.drawBitmap(
-            LCDWIDTH/2 - 2 - 16,
+            LCDWIDTH/2 - 2,
             LCDHEIGHT/2 - 2,
             BMCURS);
         gb.display.setColor(WHITE);
-        gb.display.fillRect(LCDWIDTH - 16, 0, 16, LCDHEIGHT);
+        gb.display.fillRect(LCDWIDTH - 16, 0, 16, 16);
         gb.display.setColor(BLACK);
-        gb.display.drawFastVLine(LCDWIDTH - 17, 0, LCDHEIGHT);
+        gb.display.drawFastVLine(LCDWIDTH - 17, 0, 17);
+        gb.display.drawFastHLine(LCDWIDTH - 17, 16, 17);
         draw_comp (LCDWIDTH - 16, 0, sel_tool, 0);
     }
     else
@@ -122,6 +123,29 @@ void draw_ui(void) {
             }
         }
         gb.display.drawRect(menu_curs_x * 16, menu_curs_y * 16, 16,16);
+    }
+}
+
+void pause_menu()
+{
+    switch(gb.menu(menu,4))
+    {
+        case -1:
+            break;
+        case 0:
+            restore_game();
+            break;
+        case 1:
+            save_game();
+            break;
+        case 2:
+            circuit.nbcomps = 0;
+            for (int i = 0; i < MAXCOMP; ++i)
+                circuit.comps[i] = {NULLCOMP};
+            break;
+        case 3:
+            gb.titleScreen(F("Metalog"),BMOR);
+            break;
     }
 }
 
@@ -143,13 +167,13 @@ void get_inputs() {
             {
                 for (int i = 0; i < MAXCOMP; ++i)
                 {
-                    if ((gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+                    if ((gb.collidePointRect(camera.x + LCDWIDTH/2,
                                              camera.y + LCDHEIGHT/2,
                                              circuit.comps[i].x, circuit.comps[i].y,
                                              16,16)) && (circuit.comps[i].id == INP))
                     {
                         circuit.comps[i].a = !circuit.comps[i].a;
-                        update_outputs(circuit.outputs);
+                        update_outputs(circuit.comps);
                     }
 
                 }
@@ -157,17 +181,17 @@ void get_inputs() {
             else if (sel_tool == WIRE)
             {
                 place_wire();
-                update_outputs(circuit.outputs);
+                update_outputs(circuit.comps);
             }
             else if (sel_tool == PLIERS)
             {
                 del_comp();
-                update_outputs(circuit.outputs);
+                update_outputs(circuit.comps);
             }
             else
             {
                 place_comp(sel_tool);
-                update_outputs(circuit.outputs);
+                update_outputs(circuit.comps);
             }
         }
     }
@@ -190,12 +214,11 @@ void get_inputs() {
     }
     if (gb.buttons.pressed(BTN_C))
     {
-        save_game(&circuit);
-        gb.titleScreen(F("Metalog"),BMOR);
+        pause_menu();
     }
     // Camera position clamping
-    camera.x = max(-(LCDWIDTH/2), camera.x);
-    camera.y = max(-(LCDHEIGHT/2), camera.y);
+    //camera.x = max(-(LCDWIDTH/2), camera.x);
+    //camera.y = max(-(LCDHEIGHT/2), camera.y);
 
 }
 
@@ -205,12 +228,8 @@ void place_comp(byte id){
     for (; i < circuit.nbcomps; ++i)
         if (circuit.comps[i].id == NULLCOMP) break;
     circuit.comps[i].id = id;
-    circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8 -16;
+    circuit.comps[i].x = camera.x + LCDWIDTH/2 - 8;
     circuit.comps[i].y = camera.y + LCDHEIGHT/2 - 8;
-    for (int j = 0; j < MAXOUTP; ++j)
-    {
-        circuit.outputs[j] = &circuit.comps[i];
-    }
     ++circuit.nbcomps;
 }
 
@@ -218,7 +237,7 @@ void del_comp()
 {
     for (int i = 0; i < MAXCOMP; ++i)
     {
-        if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+        if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                                 camera.y + LCDHEIGHT/2,
                                 circuit.comps[i].x, circuit.comps[i].y,
                                 16,16))
@@ -238,13 +257,6 @@ void del_comp()
                 circuit.comps[i].id = NULLCOMP;
                 circuit.comps[i].pr_a = NULL;
                 circuit.comps[i].pr_b = NULL;
-                for (int j = 0; j < MAXOUTP; ++j)
-                {
-                    if (circuit.outputs[i] == &circuit.comps[i])
-                    {
-                        circuit.outputs[i] = NULL;
-                    }
-                }
             }
         }
     }
@@ -258,7 +270,7 @@ void place_wire(){
     {
         for (int i = 0; i < MAXCOMP; ++i)
         {
-            if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+            if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                                     camera.y + LCDHEIGHT/2,
                                     circuit.comps[i].x, circuit.comps[i].y,
                                     16,16))
@@ -273,7 +285,7 @@ void place_wire(){
     {
         for (int i = 0; i < MAXCOMP; ++i)
         {
-            if (gb.collidePointRect(camera.x + LCDWIDTH/2 - 16,
+            if (gb.collidePointRect(camera.x + LCDWIDTH/2,
                                     camera.y + LCDHEIGHT/2,
                                     circuit.comps[i].x, circuit.comps[i].y,
                                     16,16))

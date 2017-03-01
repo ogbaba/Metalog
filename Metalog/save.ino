@@ -3,14 +3,14 @@ void save_circuit(struct Save save, struct Circuit circuit, byte savenb)
     save.circuits[savenb] = circuit;
 }
 
-void save_game(struct Circuit * save)
+void save_game()
 {
-    for (unsigned i = 0; i<sizeof(&save); ++i)
-        EEPROM.write(i,((uint8_t*)&save)[i]);
+    for (unsigned i = 0; i<sizeof(circuit); ++i)
+        EEPROM.write(i,((uint8_t*)&circuit)[i]);
 }
 
-void restore_game(struct Circuit * save)
+void restore_game(void)
 {
-    for (unsigned i=0; i<sizeof(&save); ++i)
-        ((uint8_t*)&save)[i] = EEPROM.read(i);
+    for (unsigned i=0; i<sizeof(circuit); ++i)
+        ((uint8_t*)&circuit)[i] = EEPROM.read(i);
 }

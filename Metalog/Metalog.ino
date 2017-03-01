@@ -14,8 +14,8 @@
 #define WIRE 9
 #define HAND 10
 #define PLIERS 11
+#define LABEL 0
 #define MAXCOMP 32
-#define MAXOUTP 16
 #define MENUW 4
 #define MENUH 3
 #define CAMERA_SPEED 1
@@ -35,6 +35,12 @@ const byte BMHAND[] PROGMEM = {16,16,0x0,0x0,0xE,0x0,0xA,0x0,0xB,0xE0,0xA,0xA0,0
 const byte BMPLIERS[] PROGMEM = {16,16,0x0,0x0,0x0,0x0,0xC,0x0,0xE,0x0,0x27,0x0,0x33,0xC0,0x1F,0xFC,0xE,0x7E,0x6,0x1E,0x7,0x6,0x3,0x0,0x3,0x80,0x3,0x80,0x3,0xC0,0x1,0xC0,0x0,0x0,};
 const byte BMWIRE[] PROGMEM = {16,16,0x0,0x0,0x0,0x2,0x0,0x6,0xF,0xF6,0x18,0x1E,0x37,0xCE,0x2C,0x6E,0x28,0x2C,0x28,0x2C,0x28,0x2C,0x2C,0x68,0x37,0xD8,0x18,0x30,0xF,0xE0,0x0,0x0,0x0,0x0,};
 
+const char strSave[] PROGMEM = "Save Circuit";
+const char strLoad[] PROGMEM = "Load Circuit";
+const char strDel[] PROGMEM = "Delete Circuit";
+const char strExit[] PROGMEM = "Main Menu";
+const char* const menu[4] PROGMEM = {strLoad, strSave, strDel, strExit};
+
 struct Comp
 {
     byte id = NULLCOMP;
@@ -52,7 +58,6 @@ struct Circuit
     char name [8];
     byte nbcomps = 0;
     struct Comp comps[MAXCOMP];// = {NULLCOMP};
-    struct Comp * outputs [MAXOUTP] = {NULL};
 };
 
 struct Save
@@ -69,42 +74,19 @@ struct Camera
 byte menu_arr[MENUH][MENUW] = {
     {NOT,OR,AND,NOR},
     {NAND,XOR,INP,LED},
-    {WIRE,HAND,PLIERS,NULLCOMP}
+    {WIRE,HAND,PLIERS,LABEL}
 };
+
 struct Circuit circuit;
-struct Comp comp;
 
 Camera camera;
 
 Gamebuino gb;
 
 void setup() {
-    Serial.begin(9600);
+    //Serial.begin(9600);
     gb.begin();
     gb.titleScreen(F("Metalog"),BMOR);
-    restore_game(&circuit);
-    /*
-    circuit.comps[0].id = INP;
-    circuit.comps[0].x = 3;
-    circuit.comps[0].y = 5;
-    circuit.comps[0].a = true;
-    circuit.comps[3].id = INP;
-    circuit.comps[3].a = true;
-    circuit.comps[3].x = 3;
-    circuit.comps[3].y = 23;
-    circuit.comps[1].id = AND;
-    circuit.comps[1].x = 20;
-    circuit.comps[1].y = 10;
-    circuit.comps[1].pr_a = &circuit.comps[0];
-    circuit.comps[1].pr_b = &circuit.comps[3];
-    circuit.comps[4].id = LED;
-    circuit.comps[4].x = 40;
-    circuit.comps[4].y = 10;
-    circuit.comps[4].pr_a = &circuit.comps[1];
-    circuit.outputs[0] = &circuit.comps[4];
-    circuit.nbcomps = 5;
-    update_outputs(circuit.outputs);
-     */
 }
 
 void loop() {

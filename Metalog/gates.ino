@@ -69,10 +69,10 @@ bool update_output (struct Comp * comp)
     return out;
 }
 
-void update_outputs (struct Comp * comps [])
+void update_outputs (struct Comp *comps)
 {
-    for (int i = 0; i < MAXOUTP; ++i)
+    for (int i = 0; i < MAXCOMP; ++i)
     {
-        update_output(comps[i]);
+        update_output(comps + i);
     }
 }
