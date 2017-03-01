@@ -14,8 +14,8 @@
 #define WIRE 9
 #define HAND 10
 #define PLIERS 11
-#define LABEL 0
-#define MAXCOMP 32
+//#define LABEL 0
+#define MAXCOMP 64
 #define MENUW 4
 #define MENUH 3
 #define CAMERA_SPEED 1
@@ -50,19 +50,14 @@ struct Comp
     struct Comp * pr_b = NULL;
     int x;
     int y;
-    char name [8];
+    //char name [8];
 };
 
 struct Circuit
 {
-    char name [8];
+    //char name [8];
     byte nbcomps = 0;
     struct Comp comps[MAXCOMP];// = {NULLCOMP};
-};
-
-struct Save
-{
-    struct Circuit circuits[8];
 };
 
 struct Camera
@@ -74,7 +69,7 @@ struct Camera
 byte menu_arr[MENUH][MENUW] = {
     {NOT,OR,AND,NOR},
     {NAND,XOR,INP,LED},
-    {WIRE,HAND,PLIERS,LABEL}
+    {WIRE,HAND,PLIERS,NULLCOMP}
 };
 
 struct Circuit circuit;
@@ -85,6 +80,7 @@ Gamebuino gb;
 
 void setup() {
     //Serial.begin(9600);
+    //Serial.println(sizeof(circuit));
     gb.begin();
     gb.titleScreen(F("Metalog"),BMOR);
 }

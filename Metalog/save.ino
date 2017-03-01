@@ -1,9 +1,4 @@
-void save_circuit(struct Save save, struct Circuit circuit, byte savenb)
-{
-    save.circuits[savenb] = circuit;
-}
-
-void save_game()
+void save_game(void)
 {
     for (unsigned i = 0; i<sizeof(circuit); ++i)
         EEPROM.write(i,((uint8_t*)&circuit)[i]);
