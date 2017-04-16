@@ -141,7 +141,7 @@ void pause_menu()
         case 2:
             circuit.nbcomps = 0;
             for (int i = 0; i < MAXCOMP; ++i)
-                circuit.comps[i] = {NULLCOMP};
+                circuit.comps[i].id = NULLCOMP;
             break;
         case 3:
             gb.titleScreen(F("Metalog"),BMOR);
